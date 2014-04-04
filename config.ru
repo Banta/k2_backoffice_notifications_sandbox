@@ -1,2 +1,2 @@
-require './back_office_notifications_sandbox'
+require './afb_bca'
 run Sinatra::Application

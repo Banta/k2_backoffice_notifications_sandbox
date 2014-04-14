@@ -51,6 +51,7 @@ get '/bca.json' do
             aggregate_transactions_volume: params[:aggregate_transactions_volume],
             total_transactions_count: params[:total_transactions_count],
             macc_description: params[:macc_description]}
+  p s_params.inspect
 
   signature =  sign_params(s_params, symmetric_key)
 

@@ -1,2 +1,2 @@
-require './afb_bca'
+require 'afb_bca'
 run Sinatra::Application

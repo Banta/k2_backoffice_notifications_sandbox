@@ -53,7 +53,7 @@ get '/bca.json' do
             macc_description: params[:macc_description]}
   p "Parameters ==>" << params.inspect
 
-  p "Requests headers ===>" << request.headers.inspect
+  p "Requests headers ===>" << request.inspect
 
   signature =  sign_params(s_params, symmetric_key)
 

@@ -10,14 +10,14 @@ end
 require 'digest/sha1'
 
 get '/' do
-  "Go to /bca.json for the JSON response for HTTP POST notifications. More to come..."
+  "#{Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), "key", "Nairobi").to_s)}"
 end
 
 # Request from Kopo Kopo
 # GET /bca?format=json&merchant_identifier=fGVDOYMhjyojmEJ74lwBow==\n&aggregate_transactions_volume=371404&total_transactions_count&20&macc_description=Other
 #
 # Response from AFB
-# {"status": "01", "description": "Accepted", "merchant_identifier": "fGVDOYMhjyojmEJ74lwBow==\n",
+# { "merchant_identifier": "fGVDOYMhjyojmEJ74lwBow==\n",
 #  "table": {
 #     "20": {
 #         "4000": 5500,
@@ -43,82 +43,64 @@ end
 get '/bca.json' do
 
   symmetric_key = 'kopokopoafbsecretkey' # Shared key between AFB and Kopo Kopo
-  status 200
   content_type :json
 
   # Parameters received from Kopo Kopo
-  s_params = {merchant_identifier: params[:merchant_identifier],
-            aggregate_transactions_volume: params[:aggregate_transactions_volume],
-            total_transactions_count: params[:total_transactions_count],
-            macc_description: params[:macc_description]}
-  p "Parameters ==>" << params.inspect
+  params_from_k2 = {aggregate_transactions_volume: params[:aggregate_transactions_volume],
+              total_transactions_count: params[:total_transactions_count],
+              macc_description: params[:macc_description],
+              merchant_identifier: params[:merchant_identifier]}
 
-  p "Requests headers ===>" << request.inspect
 
-  signature =  sign_params(s_params, symmetric_key)
+  p "\nParameters ==> #{params_from_k2.to_s} --\n"
+  p "\nsignature ==>" << params[:signature] << "\n"
+
+  signature = getSignature(params_from_k2, symmetric_key)
+
+  p "Sig " << signature << " == " << params[:signature]
 
   if signature == params[:signature]
-    { :status => '01',
-      :description => 'Accepted',
-      :merchant_identifier => params['merchant_identifier'],
-      :loan_amount => {:minimum => 1200, :maximum => 88000},
-      :percentage_retrieval_rate => {:minimum => 20, :maximum => 60},
-      :table => jsn}.to_json
+    table = genetate_table # The method that generates the table
+    signature = get_hmac(params['merchant_identifier'], table.to_json, symmetric_key)
+
+    status 200
+    {
+        :merchant_identifier => params[:merchant_identifier],
+        :table => table,
+        :signature => signature
+    }.to_json
   else
-    { :status => '02',
-      :description => 'Rejected'}.to_json
+    status 403
+    {:status => '02',
+     :description => 'Rejected'}.to_json
   end
 
 end
 
-def sign_params(params, symmetric_key)
-  # Normalize the parameters and generate a base string for the signature
-  base_string = ((params.to_a.map do |(key, value)|
-    # Convert to string to allow sorting.
-    [key.to_s, value.to_s]
-  end).sort.inject([]) do |accu, (key, value)|
-    accu << encode(key) + '=' + encode(value)
-    accu
-  end).join('&')
-
-  signature = Base64.encode64(Digest::HMAC.digest(
-                                  base_string, symmetric_key, Digest::SHA1
-                              )).strip
-
-  return signature
+def getSignature(params, symmetric_key)
+  signature = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), symmetric_key, params.to_json).to_s
+  Base64.encode64(signature)
 end
 
-def encode(value)
-  value = value.to_s if value.kind_of?(Symbol)
-  return Addressable::URI.encode_component(
-      value,
-      Addressable::URI::CharacterClasses::UNRESERVED
-  )
-end
-
-def parameterize(params)
-  ((params.to_a.map do |(key, value)|
-    # Convert to string to allow sorting.
-    [key.to_s, value.to_s]
-  end).inject([]) do |accu, (key, value)|
-    accu << KopoKopo::Hooks.encode(key) + '=' + KopoKopo::Hooks.encode(value)
-    accu
-  end).join('&')
-end
-
-def jsn
+def genetate_table
   json_data = {}
-    c = 3
-    c1 = 10
-    for i in 20..60 do
-      json_data["#{i}"] =  {}
+  c = 3
+  c1 = 10
+  for i in 20..60 do
+    json_data["#{i}"] = {}
 
-      for j in c..c1 do
-        json_data["#{i}"]["#{ (j * 1000) + 1000}"] = (j * 1000) + 1000 + (j * 500) 
-      end
-
-      c += 1;
-      c1 += 5;
+    for j in c..c1 do
+      json_data["#{i}"]["#{ (j * 1000) + 1000}"] = (j * 1000) + 1000 + (j * 500)
     end
-    json_data
+
+    c += 1;
+    c1 += 5;
+  end
+  json_data
+end
+
+def get_hmac(merchant_identifier, table, symmetric_key)
+  digest = OpenSSL::Digest.new('sha1')
+  hmac = OpenSSL::HMAC.digest(digest, symmetric_key, (merchant_identifier || '') + (table || ''))
+  Base64.encode64(hmac.to_s)
 end

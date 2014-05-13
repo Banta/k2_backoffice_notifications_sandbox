@@ -42,7 +42,7 @@ end
 
 get '/bca.json' do
 
-  symmetric_key = 'kopokopoafbsecretkey' # Shared key between AFB and Kopo Kopo
+  symmetric_key = 'i0IVNFPMBdfd3lT2AODi' # Shared key between AFB and Kopo Kopo
   content_type :json
 
   # Parameters received from Kopo Kopo

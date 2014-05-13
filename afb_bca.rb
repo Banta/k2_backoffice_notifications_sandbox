@@ -46,8 +46,8 @@ get '/bca.json' do
   content_type :json
 
   # Parameters received from Kopo Kopo
-  params_from_k2 = {aggregate_transactions_volume: params[:aggregate_transactions_volume],
-              total_transactions_count: params[:total_transactions_count],
+  params_from_k2 = {aggregate_transactions_volume: params[:aggregate_transactions_volume].to_i,
+              total_transactions_count: params[:total_transactions_count].to_i,
               macc_description: params[:macc_description],
               merchant_identifier: params[:merchant_identifier]}
 

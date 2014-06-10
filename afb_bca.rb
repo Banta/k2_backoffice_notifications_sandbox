@@ -2,6 +2,8 @@ require 'sinatra'
 require 'json'
 require 'base64'
 require 'addressable/uri'
+require './lib/encryptor'
+include Encryptor
 begin
   require 'digest/hmac'
 rescue LoadError
@@ -11,6 +13,30 @@ require 'digest/sha1'
 
 get '/' do
   "#{Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), "key", "Nairobi").to_s)}"
+end
+
+get '/encryptdecrypt' do
+  salt = params[:salt]
+  secret_key = params[:secret_key]
+  output = "Pass salt, secret_key and either encrypt or decrypt"
+
+  if params[:encrypt]
+    begin
+      encrypted_merchant_identifier = Encryptor.encrypt(params[:encrypt].to_s, key: secret_key, salt: salt)
+      output = Base64.strict_encode64(encrypted_merchant_identifier)
+    rescue => e
+      puts "Error: #{e}"
+    end
+  elsif params[:decrypt]
+    begin
+      decoded_merchant_identifier = Base64.decode64(params[:decrypt].to_s)
+      output = Encryptor.decrypt(decoded_merchant_identifier, key: secret_key, salt: salt)
+    rescue => e
+      puts "Error: #{e}"
+    end
+  end
+
+  output
 end
 
 # Request from Kopo Kopo

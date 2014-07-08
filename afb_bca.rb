@@ -12,28 +12,31 @@ end
 require 'digest/sha1'
 
 get '/' do
-  "#{Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), "key", "Nairobi").to_s)}"
+  @form = "Hello"
+  erb :index
 end
 
 get '/encryptdecrypt' do
   salt = params[:salt]
   secret_key = params[:secret_key]
-  output = "Pass salt, secret_key and either encrypt or decrypt"
+  output = "Enter correct salt, secret_key and either encrypt or decrypt" << "<br /><br /><a href='/'>Go back</a></b>"
 
-  if params[:encrypt]
+  if params[:method] == 'encrypt'
     begin
-      encrypted_merchant_identifier = Encryptor.encrypt(params[:encrypt].to_s, key: secret_key, salt: salt)
-      output = Base64.strict_encode64(encrypted_merchant_identifier)
+      encrypted_merchant_identifier = Encryptor.encrypt(params[:id].to_s, key: secret_key, salt: salt)
+      output = "Encrypted id: <b>#{Base64.strict_encode64(encrypted_merchant_identifier)}</b>" << "<br /><br /><b><a href='/'>Go back</a></b>"
     rescue => e
       puts "Error: #{e}"
     end
-  elsif params[:decrypt]
+  elsif params[:method] == 'decrypt'
     begin
-      decoded_merchant_identifier = Base64.decode64(params[:decrypt].to_s)
-      output = Encryptor.decrypt(decoded_merchant_identifier, key: secret_key, salt: salt)
+      decoded_merchant_identifier = Base64.decode64(params[:id].to_s)
+      output = "Plain id: <b>#{Encryptor.decrypt(decoded_merchant_identifier, key: secret_key, salt: salt)}</b>" << "<br /><br /><b><a href='/'>Go back</a></b>"
     rescue => e
       puts "Error: #{e}"
     end
+  else
+    output = "Pass salt, secret_key and either encrypt or decrypt" << "<br /><br /><b><a href='/'>Go back</a></b>"
   end
 
   output

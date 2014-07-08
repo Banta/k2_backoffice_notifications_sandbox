@@ -12,34 +12,37 @@ end
 require 'digest/sha1'
 
 get '/' do
-  @form = "Hello"
-  erb :index
+  "/"
 end
 
 get '/encryptdecrypt' do
   salt = params[:salt]
   secret_key = params[:secret_key]
-  output = "Enter correct salt, secret_key and either encrypt or decrypt" << "<br /><br /><a href='/'>Go back</a></b>"
+  output = "Enter correct salt, secret_key and either encrypt or decrypt" << "<br /><br /><a href='/xhfgduv267riqwd'>Go back</a></b>"
 
   if params[:method] == 'encrypt'
     begin
       encrypted_merchant_identifier = Encryptor.encrypt(params[:id].to_s, key: secret_key, salt: salt)
-      output = "Encrypted id: <b>#{Base64.strict_encode64(encrypted_merchant_identifier)}</b>" << "<br /><br /><b><a href='/'>Go back</a></b>"
+      output = "Encrypted id: <b>#{Base64.strict_encode64(encrypted_merchant_identifier)}</b>" << "<br /><br /><b><a href='/xhfgduv267riqwd'>Go back</a></b>"
     rescue => e
       puts "Error: #{e}"
     end
   elsif params[:method] == 'decrypt'
     begin
       decoded_merchant_identifier = Base64.decode64(params[:id].to_s)
-      output = "Plain id: <b>#{Encryptor.decrypt(decoded_merchant_identifier, key: secret_key, salt: salt)}</b>" << "<br /><br /><b><a href='/'>Go back</a></b>"
+      output = "Plain id: <b>#{Encryptor.decrypt(decoded_merchant_identifier, key: secret_key, salt: salt)}</b>" << "<br /><br /><b><a href='/xhfgduv267riqwd'>Go back</a></b>"
     rescue => e
       puts "Error: #{e}"
     end
   else
-    output = "Pass salt, secret_key and either encrypt or decrypt" << "<br /><br /><b><a href='/'>Go back</a></b>"
+    output = "Pass salt, secret_key and either encrypt or decrypt" << "<br /><br /><b><a href='/xhfgduv267riqwd'>Go back</a></b>"
   end
 
   output
+end
+
+get '/xhfgduv267riqwd' do
+   erb :xhfgduv267riqwd
 end
 
 # Request from Kopo Kopo

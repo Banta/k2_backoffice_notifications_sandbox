@@ -41,13 +41,36 @@ get '/encryptdecrypt' do
   output
 end
 
-get '/xhfgduv267riqwhfhd' do
+get '/xhfgduv267riqwd' do
    erb :xhfgduv267riqwd
 end
 
-#use Rack::Auth::Basic, "Restricted Area" do |username, password|
-#  username == 'username12' and password == 'password12'
-#end
+# Request from Kopo Kopo
+# GET /bca?format=json&merchant_identifier=fGVDOYMhjyojmEJ74lwBow==\n&aggregate_transactions_volume=371404&total_transactions_count&20&macc_description=Other
+#
+# Response from AFB
+# { "merchant_identifier": "fGVDOYMhjyojmEJ74lwBow==\n",
+#  "table": {
+#     "20": {
+#         "4000": 5500,
+#         "5000": 7000,
+#         "6000": 8500,
+#         "7000": 10000,
+#         "8000": 11500,
+#         "9000": 13000,
+#         "10000": 14500,
+#         "11000": 16000
+#     },
+#     .
+#     .
+#     .
+#     "60": {
+#         "5000": 7000,
+#         .
+#         .
+#         .
+#         "16000": 23500
+#     }
 
 get '/bca.json' do
 
@@ -86,23 +109,7 @@ get '/bca.json' do
 
 end
 
-post '/receive_bca_notification' do
-
-  signature = params["signature"]
-  params.delete("signature")
-
-  if signature == getSignature(params, "YSCgk1haV0kS1P9+FXIR")
-    status 200
-    {message: "Received successfully"}.to_json
-  else
-    status 403
-    {message: "Rejected"}.to_json
-  end
-end
-
-
 def getSignature(params, symmetric_key)
-  puts params.to_json
   signature = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), symmetric_key, params.to_json).to_s
   Base64.encode64(signature)
 end

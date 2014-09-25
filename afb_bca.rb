@@ -41,8 +41,8 @@ get '/encryptdecrypt' do
   output
 end
 
-get '/xhfgduv267riqwd' do
-   erb :xhfgduv267riqwd
+get '/xhfgduv267riqwdfghikt97' do
+   erb :xhfgduv267riqwdfghikt97
 end
 
 # Request from Kopo Kopo

@@ -99,7 +99,8 @@ get '/bca.json' do
     {
         :merchant_identifier => params[:merchant_identifier],
         :table => table,
-        :signature => signature
+        :signature => signature,
+        :status => "STATUS001"
     }.to_json
   else
     status 403

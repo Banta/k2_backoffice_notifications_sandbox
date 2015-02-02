@@ -1,0 +1,31 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <ns1:processRequestResponse xmlns:ns1="http://b2b.mobilemoney.mtn.zm_v1.0">
+      <return>
+        <name>ProcessingNumber</name>
+        <value>555</value>
+      </return>
+      <return>
+        <name>ThirdPartyAcctRef</name>
+        <value>444</value>
+      </return>
+      <return>
+        <name>senderID</name>
+        <value>MOM</value>
+      </return>
+      <return>
+        <name>StatusCode</name>
+        <value>01</value>
+      </return>
+      <return>
+        <name>StatusDesc</name>
+        <value>PENDING</value>
+      </return>
+      <return>
+        <name>MOMTransactionID</name>
+        <value>111</value>
+      </return>
+    </ns1:processRequestResponse>
+  </soapenv:Body>
+</soapenv:Envelope>
